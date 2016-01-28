@@ -8,8 +8,8 @@ import tkinter as tk
 from tkinter import messagebox
 import os
 import time
+from datetime import datetime
 
-import subprocess  #调用子进程执行
 
 
 
@@ -22,7 +22,7 @@ def getHtml(url):
             page = urllib.request.urlopen(url,timeout = timeout)
             break
         except OSError:
-            time.sleep(1)
+            time.sleep(2)
             retries += 1
 
     try:
@@ -32,26 +32,56 @@ def getHtml(url):
     else:
         return page
 
-def getTop10(html):
+def getTop(html):
     soup = BeautifulSoup(html,"lxml")
     table = soup.find("table",id="ess_ctr9680_ListC_Info_LstC_Info").tr
     contents = []
+
     for index,x in enumerate(table.next_siblings):
-        if index > 9:
+        if index > 10:
             break
-        contents.append(x.find("a").text)
-    return str(contents)
+        contents.append(x.find("td",align="right").text)
+    return contents
 
 
-def writeNewFile(contents):
-     with open("lastCraw.txt","w",encoding="utf-8") as f:
-        f.write(contents)
+def checkDate(dates,siteUrl):
+
+    today = datetime.today().day
+    month = datetime.today().month
+
+    root = tk.Tk()
+    root.withdraw()
+
+    for t in dates:
+        pt = re.search(r"\d+\-(\d+)\-(\d+)",t)
+        m = int(pt.group(1))
+        d = int(pt.group(2))
+
+        if month == m:
+            if d == today:
+                messagebox.showinfo("紧急","今天有新消息发布!")
+                os.system("firefox %s"%siteUrl)
+                return 0
+            elif abs(today - d) < 3:
+                messagebox.showinfo("查询结果","最近三天有新消息发布!")
+                os.system("firefox %s"%siteUrl)
+                return 0
+
+    messagebox.showinfo("查询结果","最近三天没有新消息发布!")
+    return 0
 
 
-def readOldFile():
-    with open("lastCraw.txt","r") as f:
-        contents = f.readline()
-        return contents
+
+
+# def writeNewFile(contents):
+#      with open("lastCraw.txt","w",encoding="utf-8") as f:
+#         f.write(contents)
+#
+#
+# def readOldFile():
+#     with open("lastCraw.txt","r") as f:
+#         contents = f.readline()
+#         return contents
 
 
 def main():
@@ -63,20 +93,10 @@ def main():
     if html == None:
         messagebox.showerror('错误','网络出现问题')
         return -1
-    oldContents = readOldFile()
-    newContents = getTop10(html)
-    writeNewFile(newContents)
 
+    dates = getTop(html)
+    checkDate(dates,siteUrl)
 
-
-
-
-    if newContents != oldContents:
-        messagebox.showwarning('查询结果', '有新的项目公告发布！')
-        os.system("firefox %s"%siteUrl)
-    else:
-        messagebox.showwarning('查询结果', '暂时没有新项目发布！')
-        #os.system("firefox  %s"%siteUrl)
     return 0
 
 if __name__ =="__main__":
