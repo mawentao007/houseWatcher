@@ -1,12 +1,12 @@
+#coding=utf-8
 __author__ = 'marvin'
 
 import re
 import urllib
-from urllib.error import URLError
 from bs4 import BeautifulSoup
 import tkinter as tk
 from tkinter import messagebox
-import os   #调用系统命令
+import os
 import time
 
 import subprocess  #调用子进程执行
@@ -15,14 +15,14 @@ import subprocess  #调用子进程执行
 
 
 def getHtml(url):
-    timeout = 3
+    timeout = 100
     retries = 0
     while retries < 5:
         try:
             page = urllib.request.urlopen(url,timeout = timeout)
             break
         except OSError:
-            time.sleep(3)
+            time.sleep(1)
             retries += 1
 
     try:
