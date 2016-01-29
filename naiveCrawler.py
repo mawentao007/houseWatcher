@@ -34,68 +34,88 @@ def getHtml(url):
 def getTop(html):
     soup = BeautifulSoup(html,"lxml")
     table = soup.find("table",id="ess_ctr9680_ListC_Info_LstC_Info")
-    tds = table.find_all("td",align="right")
+
+    return table
 
 
-    contents = []
-    for x in tds:
-        contents.append(x.text)
-    print(contents)
-    return contents
-
-
-def checkDate(dates,siteUrl):
+#通过检查时间的方式来查看
+def checkDate(table,siteUrl):
 
     today = datetime.today().day
     month = datetime.today().month
 
-    root = tk.Tk()
-    root.withdraw()
+    tds = table.find_all("td",align="right")
 
-    for t in dates:
+    contents = []
+    for x in tds:
+        contents.append(x.text)
+
+
+    for t in contents:
         pt = re.search(r"\d+\-(\d+)\-(\d+)",t)
         m = int(pt.group(1))
         d = int(pt.group(2))
 
         if month == m:
             if d == today:
-                messagebox.showinfo("紧急","今天有新消息发布!")
+                showMessage("紧急","今天有新消息发布!")
                 os.system("firefox %s"%siteUrl)
                 return 0
             elif abs(today - d) < 3:
-                messagebox.showinfo("查询结果","最近三天有新消息发布!")
+                showMessage("查询结果","最近三天有新消息发布!")
                 os.system("firefox %s"%siteUrl)
                 return 0
 
-    messagebox.showinfo("查询结果","最近三天没有新消息发布!")
+    showMessage("查询结果","最近三天没有新消息发布!")
+    return 0
+
+def checkLocalFile(table,siteUrl,filePath):
+    firstText = table.find("a").text
+    oldTexts = readOldFile(filePath)
+    writeNewFile(firstText,filePath)
+
+    if firstText != oldTexts:
+        showMessage("最新发布",firstText)
+
+
+
     return 0
 
 
+def writeNewFile(contents,filePath):
+
+    with open(filePath,"w",encoding="utf-8") as f:
+        f.write(contents)
 
 
-# def writeNewFile(contents):
-#      with open("lastCraw.txt","w",encoding="utf-8") as f:
-#         f.write(contents)
-#
-#
-# def readOldFile():
-#     with open("lastCraw.txt","r") as f:
-#         contents = f.readline()
-#         return contents
+def readOldFile(filePath):
+    with open("lastCraw.txt","r") as f:
+        contents = f.readline()
+        return contents
+
+
+def showMessage(title,content):
+    root = tk.Tk()
+    root.withdraw()
+    messagebox.showinfo(title,content)
 
 
 def main():
-    root = tk.Tk()
-    root.withdraw()
+
+    fileName = "lastCraw.txt"
+    dir = os.path.dirname(__file__)
+    filePath = os.path.join(dir,fileName)
+
 
     siteUrl = "http://www.bjjs.gov.cn/tabid/1072/MoreModuleID/10041/MoreTabID/4021/Default.aspx"
     html = getHtml(siteUrl)
     if html == None:
-        messagebox.showerror('错误','网络出现问题')
+        showMessage('错误','网络出现问题')
         return -1
 
-    dates = getTop(html)
-    checkDate(dates,siteUrl)
+    table = getTop(html)
+    #checkDate(table,siteUrl)
+    checkLocalFile(table,siteUrl,filePath)
 
     return 0
 
