@@ -89,7 +89,7 @@ def writeNewFile(contents,filePath):
 
 
 def readOldFile(filePath):
-    with open("lastCraw.txt","r") as f:
+    with open(filePath,"r") as f:
         contents = f.readline()
         return contents
 
