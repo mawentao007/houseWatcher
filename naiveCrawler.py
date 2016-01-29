@@ -15,11 +15,10 @@ from datetime import datetime
 
 
 def getHtml(url):
-    timeout = 100
     retries = 0
     while retries < 5:
         try:
-            page = urllib.request.urlopen(url,timeout = timeout)
+            page = urllib.request.urlopen(url)
             break
         except OSError:
             time.sleep(2)
@@ -34,13 +33,14 @@ def getHtml(url):
 
 def getTop(html):
     soup = BeautifulSoup(html,"lxml")
-    table = soup.find("table",id="ess_ctr9680_ListC_Info_LstC_Info").tr
-    contents = []
+    table = soup.find("table",id="ess_ctr9680_ListC_Info_LstC_Info")
+    tds = table.find_all("td",align="right")
 
-    for index,x in enumerate(table.next_siblings):
-        if index > 10:
-            break
-        contents.append(x.find("td",align="right").text)
+
+    contents = []
+    for x in tds:
+        contents.append(x.text)
+    print(contents)
     return contents
 
 
