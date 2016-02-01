@@ -77,6 +77,8 @@ def checkLocalFile(table,siteUrl,filePath):
     if firstText != oldTexts:
         showMessage("最新发布",firstText)
         os.system("firefox %s"%siteUrl)
+    else:
+        showMessage("查询结果","没有新项目发布。")
 
 
 
