@@ -92,9 +92,16 @@ def writeNewFile(contents,filePath):
 
 
 def readOldFile(filePath):
-    with open(filePath,"r") as f:
+    # with open(filePath,"r") as f:
+    #     contents = f.readline()
+    #     return contents
+
+    try:
+        f = open(filePath,"r")
         contents = f.readline()
-        return contents
+    except FileNotFoundError:
+        return
+    return contents
 
 
 def showMessage(title,content):
