@@ -42,7 +42,7 @@ def getTop(page):
     
      
 
-url = "http://www.bjjs.gov.cn/bjjs/fwgl/zzxspzf/tzgg/index.shtml"
+url = "http://www.bjjs.gov.cn/bjjs/xxgk/ztzl/gycqzf/tzgg80/index.shtml"
 page = getHtml(url)
 getTop(page)
 
